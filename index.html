@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyLibrary - Kütüphanem</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Georgia', serif; }
+    
+    /* Yerel Arka Plan Görseli Entegrasyonu */
+    body { 
+      background: linear-gradient(rgba(0, 0, 0, 0.70), rgba(0, 0, 0, 0.70)), 
+                  url('file:///C:/Users/PAPA_/Desktop/lib/background.png') no-repeat center center fixed;
+      background-size: cover;
+      color: #333; 
+      padding: 20px; 
+      display: flex; 
+      flex-direction: column; 
+      min-height: 100vh; 
+      position: relative;
+    }
+
+    .container { 
+      max-width: 850px; 
+      margin: 20px auto; 
+      background: #fdfaf7; 
+      padding: 30px; 
+      border-radius: 12px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+      border: 3px solid #8b5a2b;
+      flex: 1; 
+      z-index: 1;
+    }
+
+    h1 { text-align: center; color: #4a2c11; margin-bottom: 20px; font-size: 2.2rem; text-transform: uppercase; letter-spacing: 1px; }
+    h3 { color: #5a3818; margin-bottom: 10px; font-size: 1.1rem; border-bottom: 1px solid #d7c4b7; padding-bottom: 5px; }
+
+    .section { margin-bottom: 20px; padding-bottom: 15px; }
+    .form-group { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    
+    input[type="text"] { 
+      flex: 1; 
+      padding: 10px 14px; 
+      border: 1px solid #b89b82; 
+      border-radius: 6px; 
+      font-size: 14px; 
+      min-width: 200px; 
+      background: #fff8f0;
+      color: #333;
+    }
+    input[type="text"]:focus { outline: none; border-color: #8b5a2b; box-shadow: 0 0 5px rgba(139, 90, 43, 0.4); }
+
+    button { 
+      padding: 10px 16px; 
+      border: none; 
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-weight: bold; 
+      transition: all 0.2s; 
+      font-family: 'Segoe UI', sans-serif;
+    }
+    
+    .btn-add { background-color: #2e7d32; color: white; }
+    .btn-add:hover { background-color: #1b5e20; }
+    .btn-read { background-color: #6a1b9a; color: white; }
+    .btn-read:hover { background-color: #4a148c; }
+    .btn-list { background-color: #1565c0; color: white; }
+    .btn-list:hover { background-color: #0d47a1; }
+    .btn-search { background-color: #e65100; color: white; }
+    .btn-search:hover { background-color: #bf360c; }
+    .btn-edit { background-color: #f57f17; color: white; padding: 6px 12px; font-size: 12px; }
+    .btn-delete { background-color: #c62828; color: white; padding: 6px 12px; font-size: 12px; }
+
+    .book-list { list-style: none; margin-top: 15px; min-height: 50px; }
+    .book-item { 
+      background: #fff; 
+      padding: 10px 15px; 
+      border-radius: 6px; 
+      margin-bottom: 8px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      border-left: 5px solid #1565c0; 
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .book-item.read { border-left-color: #6a1b9a; }
+    .book-info { font-size: 15px; }
+    .book-actions { display: flex; gap: 5px; }
+    
+    .badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: bold; margin-left: 8px; }
+    .badge-read { background: #f3e5f5; color: #6a1b9a; }
+
+    .alert { 
+      padding: 12px; 
+      background-color: #d4edda; 
+      color: #155724; 
+      border: 1px solid #c3e6cb;
+      border-radius: 6px; 
+      margin-bottom: 15px; 
+      display: none; 
+      text-align: center; 
+      font-weight: bold; 
+    }
+
+    .pagination { display: flex; justify-content: center; gap: 6px; margin-top: 15px; }
+    .pagination button { 
+      padding: 6px 12px; 
+      background: #e0d5c1; 
+      color: #4a2c11; 
+      border: 1px solid #b89b82; 
+      font-size: 13px;
+    }
+    .pagination button.active { background: #8b5a2b; color: white; border-color: #8b5a2b; }
+
+    footer { 
+      text-align: center; 
+      margin-top: 20px; 
+      font-size: 15px; 
+      color: #fff; 
+      font-weight: bold; 
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+      z-index: 1;
+    }
+
+    /* Yerel Görselli Anasayfa Butonu Stilleri */
+    .owl-home-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 25px;
+      width: 120px;
+      height: 120px;
+      cursor: pointer;
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .owl-home-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0px 6px 12px rgba(0,0,0,0.7));
+    }
+
+    .owl-home-btn:hover {
+      transform: scale(1.15) translateY(-6px);
+    }
+
+    .owl-home-btn:active {
+      transform: scale(0.95);
+    }
+
+    .owl-home-btn::before {
+      content: "Anasayfa / Sıfırla 🪶";
+      position: absolute;
+      top: -38px;
+      background: rgba(74, 44, 17, 0.95);
+      color: #fdfaf7;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      transform: translateY(5px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      border: 1px solid #8b5a2b;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .owl-home-btn:hover::before {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 600px) {
+      .owl-home-btn { width: 85px; height: 85px; bottom: 12px; right: 12px; }
+      .owl-home-btn::before { top: -30px; font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Arka planda çalacak olan ses dosyası -->
+  <audio id="owlAudio" src="file:///C:/Users/PAPA_/Desktop/lib/owl.mp3" preload="auto"></audio>
+
+  <!-- Özel Yerel Görselli Anasayfa Butonu -->
+  <div class="owl-home-btn" onclick="goHome()" title="Anasayfaya Dön">
+    <img src="file:///C:/Users/PAPA_/Desktop/lib/homebutton.png" alt="Anasayfa Butonu">
+  </div>
+
+  <div class="container">
+    <h1>🦉 MyLibrary</h1>
+
+    <div id="alertBox" class="alert">Kitap Başarıyla İşlendi! 🦉</div>
+
+    <!-- Kitap Ekleme Bölümü -->
+    <div class="section">
+      <h3>Yeni Kitap Ekle</h3>
+      <div class="form-group">
+        <input type="text" id="bookTitle" placeholder="Kitap Adı Giriniz">
+        <input type="text" id="bookAuthor" placeholder="Yazar Adı Giriniz">
+      </div>
+      <div class="form-group">
+        <button class="btn-add" onclick="addBook(false)">Kitabı Ekle</button>
+        <button class="btn-read" onclick="addBook(true)">Okunulan Kitaplara Ekle</button>
+      </div>
+    </div>
+
+    <!-- Arama Bölümü -->
+    <div class="section">
+      <h3>Kitap Ara</h3>
+      <div class="form-group">
+        <input type="text" id="searchTitle" placeholder="Kitap Adı ile Ara...">
+        <input type="text" id="searchAuthor" placeholder="Yazar Adı ile Ara...">
+        <button class="btn-search" onclick="searchBooks()">Ara</button>
+      </div>
+    </div>
+
+    <!-- Listeleme Butonları -->
+    <div class="section" style="border-bottom: none; margin-bottom: 0;">
+      <div class="form-group">
+        <button class="btn-list" onclick="loadBooks('all')">Tüm Kitapları Listele</button>
+        <button class="btn-read" onclick="loadBooks('read')">Okunan Kitapları Listele</button>
+      </div>
+    </div>
+
+    <!-- Kitapların Gösterileceği Liste -->
+    <ul id="bookListDisplay" class="book-list"></ul>
+
+    <!-- Sayfa Numaraları -->
+    <div id="pagination" class="pagination"></div>
+  </div>
+
+  <footer id="totalFooter">
+    Toplam Kitap Sayısı: 0 | Okunan Kitap Sayısı: 0
+  </footer>
+
+  <script>
+    let books = JSON.parse(localStorage.getItem('myLibraryBooks')) || [];
+    let currentFilteredList = [];
+    let currentPage = 1;
+    const itemsPerPage = 8; 
+
+    updateFooter();
+
+    function playOwlSound() {
+      const audio = document.getElementById('owlAudio');
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => {
+          console.log("owl.mp3 oynatılamadı, yedek ses sentezleyici çalıştırılıyor:", e);
+          playFallbackOwlSound();
+        });
+      }
+    }
+
+    function playFallbackOwlSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function makeHoot(freq, startTime, duration) {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, startTime);
+          osc.frequency.exponentialRampToValueAtTime(freq * 0.75, startTime + duration);
+          gain.gain.setValueAtTime(0, startTime);
+          gain.gain.linearRampToValueAtTime(0.25, startTime + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + duration);
+        }
+        const now = audioCtx.currentTime;
+        makeHoot(360, now, 0.22);
+        makeHoot(310, now + 0.30, 0.45);
+      } catch (e) {
+        console.log("Ses sentezlenemedi:", e);
+      }
+    }
+
+    function goHome() {
+      document.getElementById('bookTitle').value = '';
+      document.getElementById('bookAuthor').value = '';
+      document.getElementById('searchTitle').value = '';
+      document.getElementById('searchAuthor').value = '';
+
+      document.getElementById('bookListDisplay').innerHTML = '';
+      document.getElementById('pagination').innerHTML = '';
+      currentFilteredList = [];
+
+      playOwlSound();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      showAlert("Anasayfaya Dönüldü! 🦉");
+    }
+
+    function addBook(isRead) {
+      const titleInput = document.getElementById('bookTitle');
+      const authorInput = document.getElementById('bookAuthor');
+
+      const title = titleInput.value.trim();
+      const author = authorInput.value.trim();
+
+      if (!title || !author) {
+        alert("Lütfen hem kitap adını hem de yazar adını giriniz!");
+        return;
+      }
+
+      const checkTitle = title.toLocaleLowerCase('tr');
+      const checkAuthor = author.toLocaleLowerCase('tr');
+
+      const existingBook = books.find(b => 
+        b.title.toLocaleLowerCase('tr') === checkTitle && 
+        b.author.toLocaleLowerCase('tr') === checkAuthor
+      );
+
+      if (existingBook) {
+        if (isRead) {
+          existingBook.isRead = true;
+          showAlert("Mevcut kitap 'Okundu' olarak güncellendi! 🦉");
+        } else {
+          alert("Bu kitap kütüphanenizde zaten mevcut!");
+          return;
+        }
+      } else {
+        const newBook = {
+          id: Date.now(),
+          title: title,
+          author: author,
+          isRead: isRead
+        };
+        books.push(newBook);
+        showAlert("Kitap Başarıyla Eklendi! 🦉");
+      }
+
+      saveBooks();
+      
+      titleInput.value = '';
+      authorInput.value = '';
+
+      document.getElementById('bookListDisplay').innerHTML = '';
+      document.getElementById('pagination').innerHTML = '';
+
+      playOwlSound();
+      updateFooter();
+    }
+
+    function showAlert(message) {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.innerText = message;
+      alertBox.style.display = 'block';
+      setTimeout(() => { alertBox.style.display = 'none'; }, 3000);
+    }
+
+    function loadBooks(filter = 'all') {
+      if (filter === 'read') {
+        currentFilteredList = books.filter(b => b.isRead);
+      } else {
+        currentFilteredList = [...books];
+      }
+      currentPage = 1;
+      renderCurrentPage();
+    }
+
+    function searchBooks() {
+      const titleQuery = document.getElementById('searchTitle').value.trim().toLocaleLowerCase('tr');
+      const authorQuery = document.getElementById('searchAuthor').value.trim().toLocaleLowerCase('tr');
+
+      if (!titleQuery && !authorQuery) {
+        alert("Lütfen aramak için kitap adı veya yazar adı giriniz.");
+        return;
+      }
+
+      currentFilteredList = books.filter(book => {
+        const matchesTitle = titleQuery ? book.title.toLocaleLowerCase('tr').includes(titleQuery) : true;
+        const matchesAuthor = authorQuery ? book.author.toLocaleLowerCase('tr').includes(authorQuery) : true;
+        return matchesTitle && matchesAuthor;
+      });
+
+      currentPage = 1;
+      renderCurrentPage();
+    }
+
+    function renderCurrentPage() {
+      const listElement = document.getElementById('bookListDisplay');
+      listElement.innerHTML = '';
+
+      if (currentFilteredList.length === 0) {
+        listElement.innerHTML = '<li style="text-align:center; color:#777; padding:15px;">Aramanıza veya filtrenize uygun kitap bulunamadı.</li>';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const pageBooks = currentFilteredList.slice(startIndex, endIndex);
+
+      pageBooks.forEach(book => {
+        const li = document.createElement('li');
+        li.className = `book-item ${book.isRead ? 'read' : ''}`;
+        const readBadge = book.isRead ? '<span class="badge badge-read">Okundu</span>' : '';
+
+        li.innerHTML = `
+          <div class="book-info">
+            <strong>${escapeHtml(book.title)}</strong> - ${escapeHtml(book.author)} ${readBadge}
+          </div>
+          <div class="book-actions">
+            <button class="btn-edit" onclick="editBook(${book.id})">Düzenle</button>
+            <button class="btn-delete" onclick="deleteBook(${book.id})">Sil</button>
+          </div>
+        `;
+        listElement.appendChild(li);
+      });
+
+      renderPaginationControls();
+    }
+
+    function renderPaginationControls() {
+      const paginationElement = document.getElementById('pagination');
+      paginationElement.innerHTML = '';
+
+      const totalPages = Math.ceil(currentFilteredList.length / itemsPerPage);
+      if (totalPages <= 1) return;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.innerText = i;
+        if (i === currentPage) btn.className = 'active';
+        btn.onclick = () => {
+          currentPage = i;
+          renderCurrentPage();
+        };
+        paginationElement.appendChild(btn);
+      }
+    }
+
+    function editBook(id) {
+      const book = books.find(b => b.id === id);
+      if (!book) return;
+
+      const newTitle = prompt("Yeni Kitap Adı:", book.title);
+      if (newTitle === null) return;
+
+      const newAuthor = prompt("Yeni Yazar Adı:", book.author);
+      if (newAuthor === null) return;
+
+      if (newTitle.trim() && newAuthor.trim()) {
+        book.title = newTitle.trim();
+        book.author = newAuthor.trim();
+        saveBooks();
+        
+        const indexInFiltered = currentFilteredList.findIndex(b => b.id === id);
+        if (indexInFiltered !== -1) {
+          currentFilteredList[indexInFiltered].title = book.title;
+          currentFilteredList[indexInFiltered].author = book.author;
+        }
+        renderCurrentPage();
+        updateFooter();
+      } else {
+        alert("Kitap ve yazar adı boş olamaz!");
+      }
+    }
+
+    function deleteBook(id) {
+      if (confirm("Bu kitabı silmek istediğinize emin misiniz?")) {
+        books = books.filter(b => b.id !== id);
+        currentFilteredList = currentFilteredList.filter(b => b.id !== id);
+        saveBooks();
+        
+        const totalPages = Math.ceil(currentFilteredList.length / itemsPerPage);
+        if (currentPage > totalPages && totalPages > 0) {
+          currentPage = totalPages;
+        }
+        
+        renderCurrentPage();
+        updateFooter();
+      }
+    }
+
+    function updateFooter() {
+      const totalCount = books.length;
+      const readCount = books.filter(b => b.isRead).length;
+      document.getElementById('totalFooter').innerText = `Toplam Kitap Sayısı: ${totalCount} | Okunan Kitap Sayısı: ${readCount}`;
+    }
+
+    function saveBooks() {
+      localStorage.setItem('myLibraryBooks', JSON.stringify(books));
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
